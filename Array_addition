@@ -1,0 +1,64 @@
+section .data
+array db 21h,22h,23h,24h,25h,26h,27h,28h,29h,30h
+
+msg db "Array addition is", 10
+msglen equ $-msg
+
+newline db 10
+
+
+section .bss
+sum resw 1
+temp resw 2 
+temp1 resb 1
+%macro io 4
+   mov rax,%1
+   mov rdi,%2
+   mov rsi,%3
+   mov rdx,%4
+   syscall
+%endmacro
+
+section .text
+    global _start
+
+  _start:
+        mov rsi,array           
+        mov ax,0h
+	    mov bx,0h
+	    mov cx,10		
+up:	    mov bl,byte[rsi]
+  	    add ax,bx
+	    jnc skip
+	    inc ah
+skip:	 
+	    inc rsi
+	    dec cx
+	    jnz up
+        mov word[sum],ax
+	    io 1,1,msg,msglen          
+        io 1,1,newline,1                  
+	
+	    call disp
+ 
+    	mov rax,60
+	    mov rdi,0
+	    syscall
+
+disp:                               
+	    mov bp,4
+	    mov ax,word[sum] 
+up1:	rol ax,4
+	    mov [temp],ax
+	    and ax,0fh
+	    cmp al,09
+	    jbe down1
+	    add al,07
+down1:	add al,30h
+	    mov [temp1],al
+	    io 1,1,temp1,1
+
+	    mov ax,word[temp]
+	    dec bp
+	    jnz up1
+	    ret
