@@ -1,0 +1,95 @@
+%macro io 4
+    mov rax, %1
+    mov rdi, %2
+    mov rsi, %3
+    mov rdx, %4
+    syscall
+%endmacro
+
+%macro newline 0
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, nl
+    mov rdx, 1
+    syscall
+%endmacro
+
+section .data
+    nl db 10
+    entrymsg db "Enter String: "
+    entrymsgL equ $-entrymsg
+    lenmsg db "Lenght: "
+    lenmsgL equ $-lenmsg
+    revmsg db "Reverse: "
+    revmsgL equ $-revmsg
+    pmsg db "Palindrome: "
+    pmsgL equ $-pmsg
+    isP db "True"
+    isPL equ $-isP
+    isnP db "False"
+    isnPL equ $-isnP
+
+section .bss
+    mystr resb 10
+    rstr resb 10
+    str_L resb 1
+
+section .text
+    global _start
+
+_start:
+    io 1,1,entrymsg,entrymsgL
+    io 0,0,mystr,10
+    add rax, 30h
+    mov [str_L], rax
+    dec byte[str_L]
+    io 1,1,lenmsg,lenmsgL
+    io 1,1,str_L,1
+    sub byte[str_L], 30h
+    newline
+    io 1,1,revmsg,revmsgL
+    call revstr
+    io 1,1,rstr,[str_L]
+    newline
+    io 1,1,pmsg, pmsgL
+    call isPalindrome
+    newline
+    io 60,0,0,0
+
+revstr:
+    mov rsi, mystr
+    mov rbx, [str_L]
+    mov rcx, rbx
+    add rsi, rbx
+    dec rsi
+    mov rdi, rstr
+up:
+    mov al, [rsi]
+    mov [rdi], al
+    inc rdi
+    dec rsi
+    dec rcx
+    jnz up
+ret
+
+isPalindrome:
+    mov rsi, mystr
+    mov rbx, [str_L]
+    mov rdi, mystr
+    add rdi, rbx
+    dec rdi
+    mov rcx, rbx
+up1:
+    mov al, [rsi]
+    cmp al, [rdi]
+    jne notequal
+    inc rsi
+    dec rdi
+    dec rcx
+    jnz up1
+    io 1,1,isP,isPL
+    jmp next
+notequal:
+    io 1,1,isnP,isnPL
+next:
+ret
