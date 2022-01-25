@@ -1,0 +1,29 @@
+section .data
+ hex dw 0EBAFh
+section .bss
+ bcd resb 5
+section .text
+ global _start
+_start:
+ mov rsi, bcd ;Initialize si with starting address of array result
+ add rsi, 4 ;Take pointer to last location of the array result
+ mov ax, [hex]
+ mov cx, 0Ah ;cx is divisor
+up:mov dx, 0
+ 
+ div cx ;DL will have remainder and AX will have Quotient
+ add dx, 30h 
+ mov [rsi], dl ;Collect the remainder
+ dec rsi
+ cmp ax,0
+ jne up
+ 
+ mov rax,1
+ mov rdi,1
+ mov rsi,bcd
+ mov rdx,5
+ 
+ syscall
+ mov rax,60
+ mov rdi,0
+ syscall
